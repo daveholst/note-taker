@@ -4,6 +4,8 @@
 require('dotenv').config();
 
 const express = require('express');
+const shortid = require('shortid');
+
 const path = require('path');
 const fs = require('fs').promises;
 
@@ -30,10 +32,13 @@ app.get('/api/notes', async (req, res) => {
 });
 // answering the POST request for the notes!
 app.post('/api/notes', async (req, res) => {
-  // db to object
+  const postData = req.body;
+  // get db data and parse to object.
   let dbData = await fs.readFile(path.join(__dirname, '/db/db.json'), 'utf-8');
   dbData = JSON.parse(dbData);
-  dbData.push(req.body);
+  // genereate id
+  postData.id = shortid.generate();
+  dbData.push(postData);
   await fs.writeFile(
     path.join(__dirname, 'db/db.json'),
     JSON.stringify(dbData, null, 2)

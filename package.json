@@ -11,7 +11,8 @@
   "license": "MIT",
   "dependencies": {
     "dotenv": "^9.0.2",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "shortid": "^2.2.16"
   },
   "repository": {
     "type": "git",
