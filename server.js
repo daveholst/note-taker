@@ -3,15 +3,18 @@
 // build api for database
 
 
-const express = require('express')
+const express = require('express');
+const path = require('path');
+
 const app = express()
 const PORT = 3000
 
 // create a static route to the public folder
 app.use(express.static('public'))
 
-app.get('/', function (req, res) {
-  res.send('Hello World')
+// create route for /notes
+app.get('/notes', (req, res) => {
+  res.sendFile('./public/notes.html')
 })
 
 app.listen(PORT, () => console.log('Server up on Port:',PORT))
