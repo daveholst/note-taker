@@ -1,6 +1,3 @@
-// server index html @ /
-// server notes up @ /notes
-// build api for database
 require('dotenv').config();
 const express = require('express');
 const shortid = require('shortid');
@@ -14,21 +11,29 @@ const { PORT } = process.env;
 app.use(express.static('public'));
 // had to add this to get the body parsing from browser on POST
 app.use(express.json());
-// TODO: REFACTOR: DRY --database reader
+// database reader
 const readDb = async () => {
-  const dbData = await fs.readFile(
-    path.join(__dirname, '/db/db.json'),
-    'utf-8'
-  );
-  return JSON.parse(dbData);
+  try {
+    const dbData = await fs.readFile(
+      path.join(__dirname, '/db/db.json'),
+      'utf-8'
+    );
+    return JSON.parse(dbData);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
-// TODO: REFACTOR: DRY -- database writer
+// database writer
 const writeDb = async (dataToWrite) => {
-  await fs.writeFile(
-    path.join(__dirname, 'db/db.json'),
-    JSON.stringify(dataToWrite, null, 2)
-  );
+  try {
+    await fs.writeFile(
+      path.join(__dirname, 'db/db.json'),
+      JSON.stringify(dataToWrite, null, 2)
+    );
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 // create route for /notes to notes.hmtl
