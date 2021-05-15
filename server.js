@@ -2,10 +2,8 @@
 // server notes up @ /notes
 // build api for database
 require('dotenv').config();
-
 const express = require('express');
 const shortid = require('shortid');
-
 const path = require('path');
 const fs = require('fs').promises;
 
@@ -17,8 +15,21 @@ app.use(express.static('public'));
 // had to add this to get the body parsing from browser on POST
 app.use(express.json());
 // TODO: REFACTOR: DRY --database reader
+const readDb = async () => {
+  const dbData = await fs.readFile(
+    path.join(__dirname, '/db/db.json'),
+    'utf-8'
+  );
+  return JSON.parse(dbData);
+};
 
 // TODO: REFACTOR: DRY -- database writer
+const writeDb = async (dataToWrite) => {
+  await fs.writeFile(
+    path.join(__dirname, 'db/db.json'),
+    JSON.stringify(dataToWrite, null, 2)
+  );
+};
 
 // create route for /notes to notes.hmtl
 app.get('/notes', (req, res) => {
@@ -27,25 +38,18 @@ app.get('/notes', (req, res) => {
 
 // answering the GET request for the notes!//
 app.get('/api/notes', async (req, res) => {
-  const dbData = await fs.readFile(
-    path.join(__dirname, '/db/db.json'),
-    'utf-8'
-  );
-  res.json(JSON.parse(dbData));
+  const dbData = await readDb();
+  res.json(dbData);
 });
 // answering the POST request for the notes!
 app.post('/api/notes', async (req, res) => {
   const postData = req.body;
-  // get db data and parse to object.
-  let dbData = await fs.readFile(path.join(__dirname, '/db/db.json'), 'utf-8');
-  dbData = JSON.parse(dbData);
   // genereate id
   postData.id = shortid.generate();
+  // get db data and parse to object.
+  const dbData = await readDb();
   dbData.push(postData);
-  await fs.writeFile(
-    path.join(__dirname, 'db/db.json'),
-    JSON.stringify(dbData, null, 2)
-  );
+  await writeDb(dbData);
   res.end();
 });
 
@@ -58,15 +62,11 @@ app.get('*', (req, res) => {
 app.delete('/api/notes/:id', async (req, res) => {
   const noteId = req.params.id;
   // get db data and parse to object.
-  let dbData = await fs.readFile(path.join(__dirname, '/db/db.json'), 'utf-8');
-  dbData = JSON.parse(dbData);
-  // find note with that index.
-  const newDbData = dbData.filter((e) => e.id !== noteId);
+  const dbData = await readDb();
+  // find note with that index and remove.
+  const modifiedDbData = dbData.filter((e) => e.id !== noteId);
   // write new array to db
-  await fs.writeFile(
-    path.join(__dirname, 'db/db.json'),
-    JSON.stringify(newDbData, null, 2)
-  );
+  await writeDb(modifiedDbData);
   res.end();
   console.log(noteId);
 });
