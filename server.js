@@ -16,6 +16,9 @@ const { PORT } = process.env;
 app.use(express.static('public'));
 // had to add this to get the body parsing from browser on POST
 app.use(express.json());
+// TODO: REFACTOR: DRY --database reader
+
+// TODO: REFACTOR: DRY -- database writer
 
 // create route for /notes to notes.hmtl
 app.get('/notes', (req, res) => {
@@ -49,6 +52,23 @@ app.post('/api/notes', async (req, res) => {
 // every other request should go to to the 'home page'
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '/public/index.html'));
+});
+
+// delete a note!
+app.delete('/api/notes/:id', async (req, res) => {
+  const noteId = req.params.id;
+  // get db data and parse to object.
+  let dbData = await fs.readFile(path.join(__dirname, '/db/db.json'), 'utf-8');
+  dbData = JSON.parse(dbData);
+  // find note with that index.
+  const newDbData = dbData.filter((e) => e.id !== noteId);
+  // write new array to db
+  await fs.writeFile(
+    path.join(__dirname, 'db/db.json'),
+    JSON.stringify(newDbData, null, 2)
+  );
+  res.end();
+  console.log(noteId);
 });
 
 app.listen(PORT, () => console.log('Server up on Port:', PORT));
