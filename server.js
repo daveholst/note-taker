@@ -11,7 +11,7 @@ const { PORT } = process.env;
 app.use(express.static('public'));
 // had to add this to get the body parsing from browser on POST
 app.use(express.json());
-// database reader
+// database reader - reads the JSONdb file and returns an object
 const readDb = async () => {
   try {
     const dbData = await fs.readFile(
@@ -24,7 +24,7 @@ const readDb = async () => {
   }
 };
 
-// database writer
+// database writer - writes an object to the JSONdb file
 const writeDb = async (dataToWrite) => {
   try {
     await fs.writeFile(
@@ -46,6 +46,10 @@ app.get('/api/notes', async (req, res) => {
   const dbData = await readDb();
   res.json(dbData);
 });
+// every other request should go to to the 'home page'
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '/public/index.html'));
+});
 // answering the POST request for the notes!
 app.post('/api/notes', async (req, res) => {
   const postData = req.body;
@@ -56,11 +60,6 @@ app.post('/api/notes', async (req, res) => {
   dbData.push(postData);
   await writeDb(dbData);
   res.end();
-});
-
-// every other request should go to to the 'home page'
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '/public/index.html'));
 });
 
 // delete a note!
