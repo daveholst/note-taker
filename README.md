@@ -1,4 +1,4 @@
-# Not Taking App
+# Note Taking App
 
 This is an express app that allows the user to add and remove notes via a web interface. Notes are stored persistently in a JSON file.
 
